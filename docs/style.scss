@@ -1,0 +1,76 @@
+$body-bg: rgb(15, 15, 15);
+$font: "Bahnschrift", "sans serif";
+$font-wt: 100;
+$font-col: rgb(235, 235, 235);
+$code-font: "Cascadia code", "Consolas", "monospace";
+$code-weight: 400;
+
+.remark-slide-content {
+    background-color: $body-bg;
+    font-family: $font;
+    font-weight: $font-wt;
+    color: $font-col;
+    background-image: url('assets/gryffindor_banner.png'), url('assets/slytherin_banner.png');
+    background-position: right top, left top;
+    background-size: 250px;
+}
+
+.title-slide-custom {
+    background-image: url('https://i.pinimg.com/originals/f3/b4/23/f3b4238175fc8c88229595b50f514d09.gif');
+    background-position: center;
+    background-size: contain;
+    color: $font-col;
+    background-color: $body-bg;
+    text-shadow:
+       3px 3px 0 $body-bg,
+     -1px -1px 0 $body-bg,
+      1px -1px 0 $body-bg,
+      -1px 1px 0 $body-bg,
+       1px 1px 0 $body-bg;
+}
+
+blockquote {
+    font-size: 2em;
+}
+
+.center2 {
+  margin: 0;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  -ms-transform: translate(-50%, -50%);
+  transform: translate(-50%, -50%);
+}
+
+.center-title {
+  margin: 0;
+  position: absolute;
+  top: 40%;
+  right: 5%;
+  text-align: right;
+}
+
+.remark-inline-code, .remark-code-line {
+    font-family: $code-font;
+    font-weight: $code-weight;
+}
+
+.remark-code-line-highlighted {
+    background-color: rgb(31, 66, 53);
+}
+
+pre code {
+  white-space: pre-wrap;
+}
+
+.title-slide-custom .remark-slide-number {
+  display: none;
+}
+
+.center-div {
+    position: absolute;
+    top:50%;
+    -ms-transform: translate(0%, -50%);
+    transform: translate(0%, -50%);
+    margin: 0
+}

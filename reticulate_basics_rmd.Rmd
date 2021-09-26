@@ -31,6 +31,7 @@ Now we're ready to use python from R!
 ## Using python directly
 
 We can start a REPL (read-evaluate-print-loop) to do python things directly in a 
+python console, just like in the R console.
 
 ```{r, eval = FALSE}
 repl_python()

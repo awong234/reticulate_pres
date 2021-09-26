@@ -1,33 +1,372 @@
 <!DOCTYPE html>
 <html lang="" xml:lang="">
   <head>
-    <title>You’re a Parselmouth, Harry! Speaking python inside of R workflows</title>
+    <title>You’re a Parselmouth, Harry!</title>
     <meta charset="utf-8" />
-    <meta name="author" content="Alec Wong" />
+    <meta name="author" content="Alec Wong • satRdays Columbus • 2021-10-02" />
     <script src="reticulate_pres_files/header-attrs-2.11/header-attrs.js"></script>
+    <link href="reticulate_pres_files/remark-css-0.0.1/default.css" rel="stylesheet" />
     <link rel="stylesheet" href="style.css" type="text/css" />
   </head>
   <body>
     <textarea id="source">
-class: right, bottom, my-title, title-slide
 
-# You’re a Parselmouth, Harry! Speaking python inside of R workflows
-### Alec Wong
-### satRdays Columbus 2021-10-02
+
+class: title-slide-custom
+
+.center-title[
+# You’re a Parselmouth, Harry!
+
+## Speaking python inside of R workflows
+
+### Alec Wong • satRdays Columbus • 2021-10-02
+]
 
 ---
 
 
 
+&gt; Any sufficiently advanced technology is indistinguishable from magic. -Arthur C. Clark
 
-# Welcome
+???
+
+# For these 15 minutes, `{reticulate}` will be indistinguishable from magic. (Arthur C. Clarke).
+# We enter the wizarding world of R programming.
 
 ---
+
+.center2[![](https://i.redd.it/vnoncsyyw1ly.png)]
+
+???
+
+# Wife and I are reading through Harry Potter
+# The theme is appropriate, if unoriginal.
+# Implies R is the default language of the wizarding world.
+
+---
+
+# Reticulate 
+
+* Rstudio develops the package!
+* Use a REPL in Rstudio!
+* Convert python objects into R objects, and vice-versa!
+* View python environment right from your environments pane!
+* Can stick with R syntax!
+
+
+```r
+install.packages("reticulate")
+```
+
+---
+
+# Reticulate - the basics
+
+.center2[
+![](https://c.tenor.com/X1IRBLDO5PEAAAAC/harry-potter-snake.gif)
+]
+
+???
+
+# For those of you who haven't used python before... use what you know!
+# Continue to use Rstudio.
+
+
+---
+
+# Setting up 
+
+
+
+```r
+library(reticulate)
+
+# what environments are present?
+envs &lt;- conda_list()
+# Create an environment, latest python, with a compatible pandas package.
+if (! 'reticulate-satrday' %in% envs$name) {
+    conda_create('reticulate-satrday', packages = 'pandas')
+}
+# use the env we just created:
+use_condaenv('reticulate-satrday', required = TRUE)
+```
+
+Environments are a way to minimize package conflicts between your projects. I can start with a clean installation of python, and any packages I require. 
+
+---
+
+# Using python
+
+We can start a REPL (read-evaluate-print-loop) to do python things directly in a 
+python console, just like in the R console.
+
+
+```r
+repl_python()
+```
+
+```
+Python 3.9.7 (C:/Users/AlecW/miniconda3/envs/reticulate-satrday/python.exe)
+Reticulate 1.20 REPL -- A Python interpreter in R.
+```
+
+```
+exit
+```
+???
+
+# DEMO
+
+---
+
+## Using python in a code chunk
+
+I can run python directly, in this code chunk!
+
+
+```python
+# This is native python code, run in R Markdown!
+import platform 
+import numpy as np # for later
+platform.platform()
+```
+
+```
+'Windows-10-10.0.19043-SP0'
+```
+
+---
+
+## Python modules in R
+
+I can also use python modules directly from R:
+
+
+```r
+# this is R!
+pl &lt;- import('platform')
+pl$platform()
+```
+
+```
+[1] "Windows-10-10.0.19043-SP0"
+```
+
+* `$` used here is the equivalent to the method accessor `.` in python.  
+
+---
+
+## Accessing python stuff from R
+
+
+```r
+# R
+py_run_string('vec = np.arange(1,10).tolist()')
+# Access python objects from R!
+py$vec
+```
+
+```
+[1] 1 2 3 4 5 6 7 8 9
+```
+
+Compare to the same object, generated in R:
+
+
+```r
+# R
+rvec &lt;- seq(1,9)
+all.equal(rvec, py$vec)
+```
+
+```
+[1] TRUE
+```
+
+---
+
+## Accessing R stuff from python
+
+Now we'll load the `CO2` dataset, which is a `data.frame` built into R.
+
+
+```r
+# R
+data(CO2)
+```
+
+I can use the `r` module to get items from R, the same way I used the `py` object in R to get other stuff from the active python session.
+
+
+```python
+# python
+df_in_python = r.__getitem__('CO2')
+df_in_python.head()
+```
+
+```
+  Plant    Type   Treatment   conc  uptake
+0   Qn1  Quebec  nonchilled   95.0    16.0
+1   Qn1  Quebec  nonchilled  175.0    30.4
+2   Qn1  Quebec  nonchilled  250.0    34.8
+3   Qn1  Quebec  nonchilled  350.0    37.2
+4   Qn1  Quebec  nonchilled  500.0    35.3
+```
+
+---
+
+.center2[
+![](https://scontent-iad3-2.xx.fbcdn.net/v/t1.18169-9/404164_452171128147964_431862419_n.jpg?_nc_cat=111&amp;ccb=1-5&amp;_nc_sid=09cbfe&amp;_nc_ohc=HwTpGWhswXAAX-h4M1y&amp;_nc_ht=scontent-iad3-2.xx&amp;oh=786a13442e7643aae66cd4fd01d63fc6&amp;oe=61735766)
+]
+
+---
+
+.center-div[
+![](https://i.pinimg.com/originals/d5/1c/d2/d51cd27e27aaca79c3066dfa80a5b42b.gif)
+
+Using `reticulate` with `dplyr`, sometimes you won't notice you're using python.
+]
+
+---
+
+# Life example
+
+## ETL routine @ work
+
+* Python module written to interface with MS OLAP cubes. `pyadomd`
+* Bunch of functions written to handle the query and transform data.
+* Used R's `DBI` package to upload to SQL Server (most convenient API!).
+
+---
+
+# Code setup, imports
+
+
+```r
+# Set up conda
+reticulate::use_condaenv("foresight_etl", required = TRUE)
+
+# Python modules
+foresight_module &lt;- reticulate::import("Foresight")
+logging &lt;- reticulate::import("logging")
+
+# Python functions
+f &lt;- foresight_module$query$Foresight()
+add_year_month_cols &lt;- foresight_module$ffc2$add_year_month_cols
+convert_state_code  &lt;- foresight_module$utils$convert_to_state_code
+match_wm_line_cov   &lt;- foresight_module$utils$match_wm_line_cov
+```
+
+* Using the import function and `$` accessor to get the functions out of my module.
+
+---
+
+# Workflow
+
+
+```r
+# Data pull
+logging$basicConfig(level=logging$DEBUG)
+ff_orig &lt;- f$query_feature_forecast(archive_dates = list("CUR FORECAST"))
+
+# Transformations
+ff &lt;- ff_orig %&gt;% 
+    mutate(across(where(is.list), ~do.call(what = c, args = .x))) %&gt;% 
+*   add_year_month_cols() %&gt;%                          #PY
+    mutate(
+*       StateCode = convert_state_code(PLN_ST_CD),     #PY
+*       WM_LINE_COV = match_wm_line_cov(LineCoverage), #PY
+        ...,
+        
+    )
+
+dbWriteTable(con, table_name, ff, overwrite = TRUE)
+```
+
+* The functions written in python "just work" when applied to a dplyr pipe workflow.
+
+---
+
+# What makes these functions work?
+
+For use *outside* of a dplyr verb ...
+
+
+```python
+*def add_year_month_cols(data: pd.DataFrame):
+*   _data = data.copy(deep=True)
+    _data['Month'], _data['Year'] = separate_year_month(_data.Acct_Dt_Lvl_2)
+    _data['Month'] = convert_month_abbr(_data.Month)
+    _data['YearMonth'] = _data.Year.astype(str) + _data.Month
+*   return _data
+```
+
+
+Try to operate as R would.
+
+* Takes a data frame
+* Performs a deep copy of the data frame 
+    * (R does not alter the data frame from parent scope, only operates on the arg within function scope)
+* Returns a modified copy of the data frame
+
+---
+
+# What makes these functions work?
+
+For use *inside* of a dplyr verb ...
+
+
+```python
+*def match_wm_line_cov(line_coverage_list):
+    
+    line_cov_match = {
+        "BI": "INJURY",
+        "COLL": "PD",
+        "COMP": "PD",
+        "MP": "MEDPAY",
+        "OTHER": "OTHER",
+        "PD": "PD",
+        "PIP": "PIP",
+        "UMBI": "INJURY",
+        "UMPD": "PD"
+    }
+*   wm_lc = [line_cov_match[x] for x in line_coverage_list]
+    return(wm_lc)
+```
+
+* Takes a vector (a list, in python parlance)
+* Returns a vector
+* `reticulate` handles the transformations automatically!
+
+---
+
+# Don't forget!
+
+&lt;img src=https://static.wikia.nocookie.net/harrypotter/images/d/d8/Obliviate_backfire.gif/revision/latest?cb=20170809232738 height=300px width=650px&gt;
+
+---
+
+# Don't forget!
+
+&lt;img src=https://img.wattpad.com/30a7ba68e7c6cd6155169f335e33d434fcb0f7e5/68747470733a2f2f73332e616d617a6f6e6177732e636f6d2f776174747061642d6d656469612d736572766963652f53746f7279496d6167652f79347a30417a4646724c66494f773d3d2d3235382e313635346666356630633265633233643736303331363237323838302e676966 height=300px width=650px&gt;
+
+---
+
+# Don't forget!
+
+* Make sure to use `required=TRUE` when calling `use_condaenv`!
+
+---
+
+.center2[
+&lt;img src='https://media4.giphy.com/media/JX8dov1ZPeKTm/giphy.gif?cid=790b761149cb04cfe43b6ec5c3bc73925bb0272f07dafde2&amp;rid=giphy.gif&amp;ct=g' style='height:500px;'&gt;
+]
     </textarea>
 <style data-target="print-only">@media screen {.remark-slide-container{display:block;}.remark-slide-scaler{box-shadow:none;}}</style>
 <script src="https://remarkjs.com/downloads/remark-latest.min.js"></script>
 <script>var slideshow = remark.create({
-"highlightStyle": "github",
+"highlightStyle": "monokai-sublime",
+"highlightLines": true,
 "ratio": "16:9"
 });
 if (window.HTMLWidgets) slideshow.on('afterShowSlide', function (slide) {
@@ -94,7 +433,24 @@ if (window.HTMLWidgets) slideshow.on('afterShowSlide', function (slide) {
       links[i].target = '_blank';
     }
   }
-})();</script>
+})();
+// adds .remark-code-has-line-highlighted class to <pre> parent elements
+// of code chunks containing highlighted lines with class .remark-code-line-highlighted
+(function(d) {
+  const hlines = d.querySelectorAll('.remark-code-line-highlighted');
+  const preParents = [];
+  const findPreParent = function(line, p = 0) {
+    if (p > 1) return null; // traverse up no further than grandparent
+    const el = line.parentElement;
+    return el.tagName === "PRE" ? el : findPreParent(el, ++p);
+  };
+
+  for (let line of hlines) {
+    let pre = findPreParent(line);
+    if (pre && !preParents.includes(pre)) preParents.push(pre);
+  }
+  preParents.forEach(p => p.classList.add("remark-code-has-line-highlighted"));
+})(document);</script>
 
 <script>
 slideshow._releaseMath = function(el) {
