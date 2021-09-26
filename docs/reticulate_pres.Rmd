@@ -1,0 +1,20 @@
+---
+title: "You’re a Parselmouth, Harry! Speaking python inside of R workflows"
+author: "Alec Wong"
+date: "satRdays Columbus 2021-10-02"
+output: 
+    xaringan::moon_reader:
+        css: ['style.css']
+        nature:
+            highlightStyle: github
+            titleSlideClass: ['right', 'bottom', 'my-title']
+            ratio: '16:9'
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, comment = NA)
+```
+
+# Welcome
+
+---

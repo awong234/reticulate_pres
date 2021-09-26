@@ -1,0 +1,106 @@
+---
+title: "Reticulate Basics"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, comment = NA)
+library(reticulate)
+library(dplyr)
+```
+
+# Setting up our environment
+
+Environments are a way to minimize package conflicts between your projects. I can start with a clean installation of python, and any packages I require. 
+
+```{r}
+# what environments are present?
+envs = conda_list()
+# Create an environment, latest python, with a compatible pandas package.
+if (! 'reticulate-satrday' %in% envs$name) {
+    conda_create('reticulate-satrday', packages = 'pandas')
+}
+# use the env we just created:
+use_condaenv('reticulate-satrday', required = TRUE)
+```
+
+Now we're ready to use python from R!
+
+# Using python
+
+## Using python directly
+
+We can start a REPL (read-evaluate-print-loop) to do python things directly in a 
+
+```{r, eval = FALSE}
+repl_python()
+# import os
+# os.getcwd()
+```
+
+## Using python in a code chunk
+
+I can run python directly, in this code chunk!
+
+```{python}
+# This is native python code!
+import os
+import numpy as np # for later
+os.getcwd()
+```
+
+I can also use python modules directly from R (take note of the language in the code chunk fence):
+
+```{r}
+# ^^^^ this is R!
+os = import('os') # Import the python module __into__ R 
+os$getcwd()
+```
+
+## Executing arbitrary python code
+
+I run some code using `py_run_string`, which is executed in the environment we
+started up just now. Even though the REPL was closed, the session persists. We
+can flip back and forth as we like.
+
+There is an object called `py` that lets us access objects from the python
+session -- converted immediately to native R objects! So the object `vec` that 
+we made in python is now accessible to us in R.
+
+```{r}
+py_run_string('vec = np.arange(1,10).tolist()')
+# Access python objects from R!
+message("This is python converted to an R object")
+py$vec
+```
+
+Compare to the same object, generated in R:
+
+```{r}
+rvec = seq(1,9)
+message("R vector same as python vector")
+all.equal(rvec, py$vec)
+```
+
+## Accessing R stuff from python
+
+Now we'll load the `CO2` dataset, which is a `data.frame` built into R.
+
+```{r}
+data(CO2)
+```
+
+I can use the `r` module to get items from R, the same way I used the `py` object in R to get other stuff from the active python session.
+
+```{python}
+rvec_in_python = r.__getitem__('rvec')
+type(rvec_in_python)
+rvec_in_python
+```
+
+```{python}
+df_in_python = r.__getitem__('CO2')
+type(df_in_python)
+df_in_python
+```
+
