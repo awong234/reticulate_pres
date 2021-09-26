@@ -302,7 +302,7 @@ def match_wm_line_cov(line_coverage_list): #<<
 
 # Don't forget!
 
-<img src=https://static.wikia.nocookie.net/harrypotter/images/d/d8/Obliviate_backfire.gif/revision/latest?cb=20170809232738 height=300px width=650px>
+<img src='assets/obliviate.gif' height=300px width=650px>
 
 ---
 
