@@ -24,7 +24,7 @@ blockquote {
 .center2 {
   margin: 0;
   position: absolute;
-  top: 50%;
+  top: 60%;
   left: 50%;
   -ms-transform: translate(-50%, -50%);
   transform: translate(-50%, -50%);
@@ -61,4 +61,21 @@ pre code {
   -ms-transform: translate(0%, -50%);
   transform: translate(0%, -50%);
   margin: 0;
+}
+
+.flash {
+  animation-duration: 500ms;
+  animation-name: blink;
+  animation-iteration-count: infinite;
+  animation-direction: alternate;
+  animation-timing-function: ease-in-out;
+}
+
+@keyframes blink {
+  from {
+    color: #800000;
+  }
+  to {
+    color: gold;
+  }
 }

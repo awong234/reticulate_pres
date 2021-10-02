@@ -23,6 +23,11 @@ class: title-slide-custom
 ### Alec Wong • satRdays Columbus • 2021-10-02
 ]
 
+???
+
+# Welcome
+# Going to go over the magic of {reticulate}
+
 ---
 
 ```{r setup, include=FALSE}
@@ -48,14 +53,14 @@ use_condaenv('reticulate-satrday', required = TRUE)
 
 # Wife and I are reading through Harry Potter
 # The theme is appropriate, if unoriginal.
-# Implies R is the default language of the wizarding world.
+# I'll take it to imply that if Harry is speaking python, Gryffindor speaks R by default.
 
 ---
 
 # Reticulate 
 
 * Rstudio develops the package!
-* Use a REPL in Rstudio!
+* Use a REPL (python console) directly in Rstudio!
 * Convert python objects into R objects, and vice-versa!
 * View python environment right from your environments pane!
 * Can stick with R syntax!
@@ -63,6 +68,10 @@ use_condaenv('reticulate-satrday', required = TRUE)
 ```{r, eval = FALSE}
 install.packages("reticulate")
 ```
+
+???
+
+# Package allows you to run python code, from your R session.
 
 ---
 
@@ -82,25 +91,34 @@ install.packages("reticulate")
 
 # Setting up 
 
+```{r, include = FALSE}
+library(reticulate)
+use_condaenv('reticulate-satrday', required = TRUE)
+```
 
-```{r}
+
+```{r, eval = FALSE}
 library(reticulate)
 
 # what environments are present?
 envs <- conda_list()
 # Create an environment, latest python, with a compatible pandas package.
-if (! 'reticulate-satrday' %in% envs$name) {
-    conda_create('reticulate-satrday', packages = 'pandas')
-}
+conda_create('reticulate-satrday', packages = c('python=3.9', 'pandas=1.3.3'))
 # use the env we just created:
 use_condaenv('reticulate-satrday', required = TRUE)
 ```
 
 Environments are a way to minimize package conflicts between your projects. I can start with a clean installation of python, and any packages I require. 
 
+???
+
+# One way to get set up
+# Conda is a package management system for python
+# 
+
 ---
 
-# Using python
+# Using python directly 
 
 We can start a REPL (read-evaluate-print-loop) to do python things directly in a 
 python console, just like in the R console.
@@ -114,30 +132,30 @@ repl_python()
 
 ---
 
-## Using python in a code chunk
+# Using python in R Markdown 
 
+.pull-left[
 I can run python directly, in this code chunk!
 
 ```{python}
 # This is native python code, run in R Markdown!
 import platform 
-import numpy as np # for later
 platform.platform()
 ```
+]
 
----
-
-## Python modules in R
-
+.pull-right[
 I can also use python modules directly from R:
 
 ```{r}
+# 
 # this is R!
-pl <- import('platform')
-pl$platform()
+platform <- import('platform')
+platform$platform()
 ```
 
 * `$` used here is the equivalent to the method accessor `.` in python.  
+]
 
 ---
 
@@ -145,6 +163,7 @@ pl$platform()
 
 ```{r}
 # R
+py_run_string('import numpy as np')
 py_run_string('vec = np.arange(1,10).tolist()')
 # Access python objects from R!
 py$vec
@@ -171,18 +190,24 @@ data(CO2)
 
 I can use the `r` module to get items from R, the same way I used the `py` object in R to get other stuff from the active python session.
 
+.pull-left[
+**This is python**
 ```{python}
-# python
-df_in_python = r.__getitem__('CO2')
+# Use the R object in python
+df_in_python = r.CO2
 df_in_python.head()
 ```
-
----
-
-.center2[
-![](https://scontent-iad3-2.xx.fbcdn.net/v/t1.18169-9/404164_452171128147964_431862419_n.jpg?_nc_cat=111&ccb=1-5&_nc_sid=09cbfe&_nc_ohc=HwTpGWhswXAAX-h4M1y&_nc_ht=scontent-iad3-2.xx&oh=786a13442e7643aae66cd4fd01d63fc6&oe=61735766)
 ]
 
+.pull-right[
+**This is R**
+```{r}
+# Use the python object in R
+# 
+head(py$df_in_python)
+```
+
+]
 ---
 
 .center-div[
@@ -190,6 +215,11 @@ df_in_python.head()
 
 Using `reticulate` with `dplyr`, sometimes you won't notice you're using python.
 ]
+
+???
+
+# ENHANCE
+# Use python with dplyr
 
 ---
 
@@ -210,14 +240,13 @@ Using `reticulate` with `dplyr`, sometimes you won't notice you're using python.
 reticulate::use_condaenv("foresight_etl", required = TRUE)
 
 # Python modules
-foresight_module <- reticulate::import("Foresight")
-logging <- reticulate::import("logging")
+foresight_module <- reticulate::import("Foresight")                  # A package I wrote
 
 # Python functions
-f <- foresight_module$query$Foresight()
-add_year_month_cols <- foresight_module$ffc2$add_year_month_cols
-convert_state_code  <- foresight_module$utils$convert_to_state_code
-match_wm_line_cov   <- foresight_module$utils$match_wm_line_cov
+foresight <- foresight_module$query$Foresight()                      # Class, with methods in it
+add_year_month_cols <- foresight_module$ffc2$add_year_month_cols     # Function
+convert_state_code  <- foresight_module$utils$convert_to_state_code  # Function
+match_wm_line_cov   <- foresight_module$utils$match_wm_line_cov      # Function
 ```
 
 * Using the import function and `$` accessor to get the functions out of my module.
@@ -227,13 +256,11 @@ match_wm_line_cov   <- foresight_module$utils$match_wm_line_cov
 # Workflow
 
 ```{r, eval = FALSE}
-# Data pull
-logging$basicConfig(level=logging$DEBUG)
-ff_orig <- f$query_feature_forecast(archive_dates = list("CUR FORECAST"))
+# Data pull - execute method from the 'foresight' python class
+ff_orig <- foresight$query_feature_forecast(archive_dates = list("CUR FORECAST")) 
 
 # Transformations
 ff <- ff_orig %>% 
-    mutate(across(where(is.list), ~do.call(what = c, args = .x))) %>% 
     add_year_month_cols() %>%                          #PY #<<
     mutate(
         StateCode = convert_state_code(PLN_ST_CD),     #PY #<<
@@ -267,7 +294,7 @@ Try to operate as R would.
 
 * Takes a data frame
 * Performs a deep copy of the data frame 
-    * (R does not alter the data frame from parent scope, only operates on the arg within function scope)
+    * (R does not alter the data frame from parent environment, only operates on a copy of the df within function environment)
 * Returns a modified copy of the data frame
 
 ---
@@ -300,9 +327,25 @@ def match_wm_line_cov(line_coverage_list): #<<
 
 ---
 
+.center2[
+![](https://scontent-iad3-2.xx.fbcdn.net/v/t1.18169-9/404164_452171128147964_431862419_n.jpg?_nc_cat=111&ccb=1-5&_nc_sid=09cbfe&_nc_ohc=HwTpGWhswXAAX-h4M1y&_nc_ht=scontent-iad3-2.xx&oh=786a13442e7643aae66cd4fd01d63fc6&oe=61735766)
+]
+
+???
+
+# As Gilderoy Lockhart says, AMAZING
+# I was shocked when I first ran this, expected error
+# Rstudio nothing short of wizards
+
+---
+
 # Don't forget!
 
 <img src='assets/obliviate.gif' height=300px width=650px>
+
+???
+
+# For those that know, this is especially hilarious because the spell "obliviate" is used, and backfires
 
 ---
 
@@ -310,14 +353,49 @@ def match_wm_line_cov(line_coverage_list): #<<
 
 <img src=https://img.wattpad.com/30a7ba68e7c6cd6155169f335e33d434fcb0f7e5/68747470733a2f2f73332e616d617a6f6e6177732e636f6d2f776174747061642d6d656469612d736572766963652f53746f7279496d6167652f79347a30417a4646724c66494f773d3d2d3235382e313635346666356630633265633233643736303331363237323838302e676966 height=300px width=650px>
 
+???
+
+# And the dude promptly forgets everything
+
 ---
 
 # Don't forget!
 
+### Caveats and considerations
+
 * Make sure to use `required=TRUE` when calling `use_condaenv`!
+* It's a good practice to export your environment to a text file.
+    * `reticulate` doesn't have any functions yet to export/import an environment from file.
+    * You'll have to use the command line to do this.
+
+```shell
+# Export the current environment (all packages & versions saved to computer-readable text file)
+conda activate {environment name}
+conda env export > environment.yml
+
+# Install the environment from the file definition
+conda env create -f environment.yml
+```
+
+* Not all python objects are transferable to R, and vice-versa. [Here's a list.](https://rstudio.github.io/reticulate/#type-conversions)
 
 ---
+
+.flash[
+# 500 points to Gryffindor!
+]
 
 .center2[
 <img src='https://media4.giphy.com/media/JX8dov1ZPeKTm/giphy.gif?cid=790b761149cb04cfe43b6ec5c3bc73925bb0272f07dafde2&rid=giphy.gif&ct=g' style='height:500px;'>
 ]
+
+---
+
+# Thank you!
+
+## Resources
+
+* <img src='https://static.wikia.nocookie.net/naruto/images/5/56/Sharingan_Triple.svg/revision/latest/scale-to-width-down/300?cb=20091022225716' width=20px height=20px> `xaringan` for slide creation • Yihui Xie
+* <img src='https://rstudio.github.io/reticulate/images/reticulated_python.png' width=20px height=20px> `reticulate` • Kevin Ushey, J.J. Allaire
+* <img src='https://raw.githubusercontent.com/tidyverse/dplyr/master/man/figures/logo.png' width=20px height=20px> `dplyr` • Hadley Wickham, Romain François, Lionel Henry, Kirill Müller
+* <img src='https://docs.conda.io/en/latest/_images/conda_logo.svg' width=20px height=20px> `miniconda` • Anaconda, Inc.
