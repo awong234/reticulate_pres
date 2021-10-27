@@ -91,12 +91,6 @@ install.packages("reticulate")
 
 # Setting up 
 
-```{r, include = FALSE}
-library(reticulate)
-use_condaenv('reticulate-satrday', required = TRUE)
-```
-
-
 ```{r, eval = FALSE}
 library(reticulate)
 
@@ -139,7 +133,7 @@ I can run python directly, in this code chunk!
 
 ```{python}
 # This is native python code, run in R Markdown!
-import platform 
+import platform
 platform.platform()
 ```
 ]
@@ -156,6 +150,12 @@ platform$platform()
 
 * `$` used here is the equivalent to the method accessor `.` in python.  
 ]
+
+???
+
+# Go through comparison 
+# Python and then R 
+# Then show the R Markdown
 
 ---
 
@@ -176,6 +176,11 @@ Compare to the same object, generated in R:
 rvec <- seq(1,9)
 all.equal(rvec, py$vec)
 ```
+
+???
+
+# Reticulate provides py object
+# Converts on the fly
 
 ---
 
@@ -208,6 +213,14 @@ head(py$df_in_python)
 ```
 
 ]
+
+???
+
+# Go the other way now
+# In python there's an r module, to get stuff from R, for use in python
+# Note pandas conversion
+# Note types are maintained, ordered factors 
+
 ---
 
 .center-div[
@@ -251,6 +264,11 @@ match_wm_line_cov   <- foresight_module$utils$match_wm_line_cov      # Function
 
 * Using the import function and `$` accessor to get the functions out of my module.
 
+???
+
+# Going through the process again, but with worked example
+# Keep in mind, no R here!
+
 ---
 
 # Workflow
@@ -273,6 +291,11 @@ dbWriteTable(con, table_name, ff, overwrite = TRUE)
 ```
 
 * The functions written in python "just work" when applied to a dplyr pipe workflow.
+
+???
+
+# Get a data frame from query
+# 
 
 ---
 

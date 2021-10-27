@@ -86,9 +86,6 @@ install.packages("reticulate")
 # Setting up 
 
 
-
-
-
 ```r
 library(reticulate)
 
@@ -169,6 +166,12 @@ platform$platform()
 * `$` used here is the equivalent to the method accessor `.` in python.  
 ]
 
+???
+
+# Go through comparison 
+# Python and then R 
+# Then show the R Markdown
+
 ---
 
 ## Accessing python stuff from R
@@ -198,6 +201,11 @@ all.equal(rvec, py$vec)
 ```
 [1] TRUE
 ```
+
+???
+
+# Reticulate provides py object
+# Converts on the fly
 
 ---
 
@@ -252,6 +260,14 @@ head(py$df_in_python)
 ```
 
 ]
+
+???
+
+# Go the other way now
+# In python there's an r module, to get stuff from R, for use in python
+# Note pandas conversion
+# Note types are maintained, ordered factors 
+
 ---
 
 .center-div[
@@ -295,6 +311,11 @@ match_wm_line_cov   &lt;- foresight_module$utils$match_wm_line_cov      # Functi
 ```
 
 * Using the import function and `$` accessor to get the functions out of my module.
+
+???
+
+# Going through the process again, but with worked example
+# Keep in mind, no R here!
 
 ---
 
